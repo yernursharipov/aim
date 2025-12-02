@@ -1,7 +1,7 @@
 #include "aim_version.h"
 
 #define AIM_VERSION_MAJOR 0
-#define AIM_VERSION_MINOR 0
+#define AIM_VERSION_MINOR 1
 #define AIM_VERSION_PATCH 0
 
 #define AIM_VERSION_CONCAT(major, minor, patch) #major "." #minor "." #patch
