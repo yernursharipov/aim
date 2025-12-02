@@ -1,2 +1,3 @@
 # aim
-2D Click Shooter
+
+2D click shooter
