@@ -25,7 +25,7 @@ CFLAGS := -fno-omit-frame-pointer      \
           -Wsign-conversion            \
           -Wundef
 
-LDFLAGS := -lm -lSDL3
+LDFLAGS := -lm -lSDL3 -lSDL3_ttf
 
 # Targets
 
