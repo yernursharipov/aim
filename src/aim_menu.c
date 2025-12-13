@@ -1,6 +1,7 @@
 #include "aim_menu.h"
 
 #include "aim.h"
+#include "aim_version.h"
 
 #include <SDL3/SDL_audio.h>
 #include <SDL3/SDL_error.h>
@@ -19,6 +20,10 @@ typedef enum {
 static TTF_Text *app_name_text = NULL;
 static float app_name_text_width = 0;
 static float app_name_text_height = 0;
+
+static TTF_Text *app_version_text = NULL;
+static float app_version_text_width = 0;
+static float app_version_text_height = 0;
 
 static TTF_Text *play_button_text = NULL;
 static float play_button_text_width = 0;
@@ -61,6 +66,13 @@ bool aim_menu_prepare(aim_context_t *context) {
         return false;
     }
 
+    app_version_text = TTF_CreateText(context->engine, context->font16, aim_version_string(), 0);
+    if (app_version_text == NULL) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_CreateText: %s", SDL_GetError());
+
+        return false;
+    }
+
     play_button_text = TTF_CreateText(context->engine, context->font32, "Play", 0);
     if (play_button_text == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_CreateText: %s", SDL_GetError());
@@ -85,6 +97,15 @@ bool aim_menu_prepare(aim_context_t *context) {
 
     app_name_text_width = (float) width;
     app_name_text_height = (float) height;
+
+    if (!TTF_GetTextSize(app_version_text, &width, &height)) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_GetTextSize: %s", SDL_GetError());
+
+        return false;
+    }
+
+    app_version_text_width = (float) width;
+    app_version_text_height = (float) height;
 
     if (!TTF_GetTextSize(play_button_text, &width, &height)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_GetTextSize: %s", SDL_GetError());
@@ -137,6 +158,12 @@ void aim_menu_present(aim_context_t *context) {
         app_name_text,
         context->window_width * 0.5f - app_name_text_width * 0.5f,
         context->window_height * 0.15f
+    );
+
+    TTF_DrawRendererText(
+        app_version_text,
+        10.0f,
+        context->window_height - app_version_text_height - 5.0f
     );
 
     if (is_play_button_hovered && !is_play_button_pressed) {
@@ -234,5 +261,6 @@ void aim_menu_release(aim_context_t *context) {
 
     TTF_DestroyText(quit_button_text);
     TTF_DestroyText(play_button_text);
+    TTF_DestroyText(app_version_text);
     TTF_DestroyText(app_name_text);
 }
