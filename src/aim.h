@@ -8,18 +8,17 @@
 #define AIM_UNUSED(x) ((void) (x))
 
 typedef enum {
-    AIM_MENU,
-    AIM_PLAY,
-    AIM_QUIT,
+    AIM_MENU_SCREEN,
+    AIM_PLAY_SCREEN,
+    AIM_QUIT_SCREEN,
 } aim_screen_t;
 
 typedef struct {
     SDL_Window *window;
     SDL_Renderer *renderer;
     TTF_TextEngine *engine;
-    TTF_Font *font16;
     TTF_Font *font32;
-    TTF_Font *font64;
+    TTF_Font *font16;
     float window_width;
     float window_height;
     aim_screen_t screen;

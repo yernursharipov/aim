@@ -6,6 +6,7 @@
 #include <SDL3/SDL_audio.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
@@ -17,14 +18,6 @@ typedef enum {
     AIM_MENU_QUIT_BUTTON,
 } aim_menu_button_t;
 
-static TTF_Text *app_name_text = NULL;
-static float app_name_text_width = 0;
-static float app_name_text_height = 0;
-
-static TTF_Text *app_version_text = NULL;
-static float app_version_text_width = 0;
-static float app_version_text_height = 0;
-
 static TTF_Text *play_button_text = NULL;
 static float play_button_text_width = 0;
 static float play_button_text_height = 0;
@@ -33,15 +26,19 @@ static TTF_Text *quit_button_text = NULL;
 static float quit_button_text_width = 0;
 static float quit_button_text_height = 0;
 
+static TTF_Text *version_label_text = NULL;
+static float version_label_text_width = 0;
+static float version_label_text_height = 0;
+
 static SDL_FRect play_button_rect = {};
 static bool is_play_button_hovered = false;
 static bool is_play_button_pressed = false;
-static bool is_play_button_sound_played = false;
+static bool is_play_button_sounded = false;
 
 static SDL_FRect quit_button_rect = {};
 static bool is_quit_button_hovered = false;
 static bool is_quit_button_pressed = false;
-static bool is_quit_button_sound_played = false;
+static bool is_quit_button_sounded = false;
 
 static SDL_AudioStream *stream = NULL;
 static SDL_AudioSpec spec = {};
@@ -49,30 +46,16 @@ static Uint8 *wav_data = NULL;
 static Uint32 wav_data_length = 0;
 
 static void aim_menu_mark_button_state(aim_menu_button_t button) {
-    is_play_button_sound_played = button == AIM_MENU_PLAY_BUTTON;
-    is_quit_button_sound_played = button == AIM_MENU_QUIT_BUTTON;
+    is_play_button_sounded = button == AIM_MENU_PLAY_BUTTON;
+    is_quit_button_sounded = button == AIM_MENU_QUIT_BUTTON;
 }
 
 static void aim_menu_reset_button_state(aim_menu_button_t button) {
-    is_play_button_sound_played = button != AIM_MENU_PLAY_BUTTON && is_play_button_sound_played;
-    is_quit_button_sound_played = button != AIM_MENU_QUIT_BUTTON && is_quit_button_sound_played;
+    is_play_button_sounded = button != AIM_MENU_PLAY_BUTTON && is_play_button_sounded;
+    is_quit_button_sounded = button != AIM_MENU_QUIT_BUTTON && is_quit_button_sounded;
 }
 
 bool aim_menu_prepare(aim_context_t *context) {
-    app_name_text = TTF_CreateText(context->engine, context->font64, "Aim", 0);
-    if (app_name_text == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_CreateText: %s", SDL_GetError());
-
-        return false;
-    }
-
-    app_version_text = TTF_CreateText(context->engine, context->font16, aim_version_string(), 0);
-    if (app_version_text == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_CreateText: %s", SDL_GetError());
-
-        return false;
-    }
-
     play_button_text = TTF_CreateText(context->engine, context->font32, "Play", 0);
     if (play_button_text == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_CreateText: %s", SDL_GetError());
@@ -87,25 +70,23 @@ bool aim_menu_prepare(aim_context_t *context) {
         return false;
     }
 
-    int width = 0, height = 0;
-
-    if (!TTF_GetTextSize(app_name_text, &width, &height)) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_GetTextSize: %s", SDL_GetError());
+    version_label_text = TTF_CreateText(context->engine, context->font16, aim_version_string(), 0);
+    if (version_label_text == NULL) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_CreateText: %s", SDL_GetError());
 
         return false;
     }
 
-    app_name_text_width = (float) width;
-    app_name_text_height = (float) height;
+    int width = 0, height = 0;
 
-    if (!TTF_GetTextSize(app_version_text, &width, &height)) {
+    if (!TTF_GetTextSize(version_label_text, &width, &height)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_GetTextSize: %s", SDL_GetError());
 
         return false;
     }
 
-    app_version_text_width = (float) width;
-    app_version_text_height = (float) height;
+    version_label_text_width = (float) width;
+    version_label_text_height = (float) height;
 
     if (!TTF_GetTextSize(play_button_text, &width, &height)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_GetTextSize: %s", SDL_GetError());
@@ -154,18 +135,6 @@ bool aim_menu_prepare(aim_context_t *context) {
 }
 
 void aim_menu_present(aim_context_t *context) {
-    TTF_DrawRendererText(
-        app_name_text,
-        context->window_width * 0.5f - app_name_text_width * 0.5f,
-        context->window_height * 0.15f
-    );
-
-    TTF_DrawRendererText(
-        app_version_text,
-        10.0f,
-        context->window_height - app_version_text_height - 5.0f
-    );
-
     if (is_play_button_hovered && !is_play_button_pressed) {
         SDL_SetRenderDrawColorFloat(context->renderer, 0.15f, 0.15f, 0.15f, 1.0f);
         SDL_RenderFillRect(context->renderer, &play_button_rect);
@@ -183,7 +152,7 @@ void aim_menu_present(aim_context_t *context) {
     }
 
     if (is_play_button_hovered) {
-        if (!is_play_button_sound_played) {
+        if (!is_play_button_sounded) {
             if (SDL_GetAudioStreamQueued(stream) < (int) wav_data_length) {
                 SDL_PutAudioStreamData(stream, wav_data, (int) wav_data_length);
                 aim_menu_mark_button_state(AIM_MENU_PLAY_BUTTON);
@@ -194,7 +163,7 @@ void aim_menu_present(aim_context_t *context) {
     }
 
     if (is_quit_button_hovered) {
-        if (!is_quit_button_sound_played) {
+        if (!is_quit_button_sounded) {
             if (SDL_GetAudioStreamQueued(stream) < (int) wav_data_length) {
                 SDL_PutAudioStreamData(stream, wav_data, (int) wav_data_length);
                 aim_menu_mark_button_state(AIM_MENU_QUIT_BUTTON);
@@ -215,43 +184,59 @@ void aim_menu_present(aim_context_t *context) {
         quit_button_rect.x + quit_button_rect.w * 0.5f - quit_button_text_width * 0.5f,
         quit_button_rect.y + quit_button_text_height * 0.25f
     );
+
+    TTF_DrawRendererText(
+        version_label_text,
+        10.0f,
+        context->window_height - version_label_text_height - 5.0f
+    );
 }
 
-void aim_menu_process(aim_context_t *context, SDL_Event *event) {
+SDL_AppResult aim_menu_process(aim_context_t *context, SDL_Event *event) {
     AIM_UNUSED(context);
 
     if (event->type == SDL_EVENT_MOUSE_MOTION) {
         float x = event->motion.x;
         float y = event->motion.y;
 
-        bool x_in_play_button_rect = x > play_button_rect.x && x < play_button_rect.x + play_button_rect.w;
-        bool y_in_play_button_rect = y > play_button_rect.y && y < play_button_rect.y + play_button_rect.h;
+        bool is_x_inside_play_button_rect = x > play_button_rect.x && x < play_button_rect.x + play_button_rect.w;
+        bool is_y_inside_play_button_rect = y > play_button_rect.y && y < play_button_rect.y + play_button_rect.h;
 
-        bool x_in_quit_button_rect = x > quit_button_rect.x && x < quit_button_rect.x + quit_button_rect.w;
-        bool y_in_quit_button_rect = y > quit_button_rect.y && y < quit_button_rect.y + quit_button_rect.h;
+        bool is_x_inside_quit_button_rect = x > quit_button_rect.x && x < quit_button_rect.x + quit_button_rect.w;
+        bool is_y_inside_quit_button_rect = y > quit_button_rect.y && y < quit_button_rect.y + quit_button_rect.h;
 
-        is_play_button_hovered = x_in_play_button_rect && y_in_play_button_rect;
-        is_quit_button_hovered = x_in_quit_button_rect && y_in_quit_button_rect;
+        is_play_button_hovered = is_x_inside_play_button_rect && is_y_inside_play_button_rect;
+        is_quit_button_hovered = is_x_inside_quit_button_rect && is_y_inside_quit_button_rect;
     }
 
     if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         float x = event->motion.x;
         float y = event->motion.y;
 
-        bool x_in_play_button_rect = x > play_button_rect.x && x < play_button_rect.x + play_button_rect.w;
-        bool y_in_play_button_rect = y > play_button_rect.y && y < play_button_rect.y + play_button_rect.h;
+        bool is_x_inside_play_button_rect = x > play_button_rect.x && x < play_button_rect.x + play_button_rect.w;
+        bool is_y_inside_play_button_rect = y > play_button_rect.y && y < play_button_rect.y + play_button_rect.h;
 
-        bool x_in_quit_button_rect = x > quit_button_rect.x && x < quit_button_rect.x + quit_button_rect.w;
-        bool y_in_quit_button_rect = y > quit_button_rect.y && y < quit_button_rect.y + quit_button_rect.h;
+        bool is_x_inside_quit_button_rect = x > quit_button_rect.x && x < quit_button_rect.x + quit_button_rect.w;
+        bool is_y_inside_quit_button_rect = y > quit_button_rect.y && y < quit_button_rect.y + quit_button_rect.h;
 
-        is_play_button_pressed = x_in_play_button_rect && y_in_play_button_rect;
-        is_quit_button_pressed = x_in_quit_button_rect && y_in_quit_button_rect;
+        is_play_button_pressed = is_x_inside_play_button_rect && is_y_inside_play_button_rect;
+        is_quit_button_pressed = is_x_inside_quit_button_rect && is_y_inside_quit_button_rect;
     }
 
     if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
         is_play_button_pressed = false;
         is_quit_button_pressed = false;
     }
+
+    if (is_play_button_pressed) {
+        context->screen = AIM_PLAY_SCREEN;
+    }
+
+    if (is_quit_button_pressed) {
+        context->screen = AIM_QUIT_SCREEN;
+    }
+
+    return SDL_APP_CONTINUE;
 }
 
 void aim_menu_release(aim_context_t *context) {
@@ -259,8 +244,7 @@ void aim_menu_release(aim_context_t *context) {
 
     SDL_free(wav_data);
 
+    TTF_DestroyText(version_label_text);
     TTF_DestroyText(quit_button_text);
     TTF_DestroyText(play_button_text);
-    TTF_DestroyText(app_version_text);
-    TTF_DestroyText(app_name_text);
 }
