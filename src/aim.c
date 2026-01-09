@@ -1,6 +1,7 @@
 #include "aim.h"
 
 #include "aim_menu.h"
+#include "aim_play.h"
 #include "aim_version.h"
 
 #include <SDL3/SDL.h>
@@ -87,6 +88,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
         return SDL_APP_FAILURE;
     }
 
+    if (!aim_play_prepare(context)) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_play_prepare: %s", SDL_GetError());
+
+        return SDL_APP_FAILURE;
+    }
+
     context->screen = AIM_MENU_SCREEN;
 
     *appstate = context;
@@ -106,7 +113,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
             return aim_menu_process(context, event);
 
         case AIM_PLAY_SCREEN:
-            break;
+            return aim_play_process(context, event);
 
         case AIM_QUIT_SCREEN:
             break;
@@ -133,6 +140,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
             break;
 
         case AIM_PLAY_SCREEN:
+            aim_play_present(context);
+
             break;
 
         case AIM_QUIT_SCREEN:
@@ -154,6 +163,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
 
     aim_context_t *context = appstate;
 
+    aim_play_release(context);
     aim_menu_release(context);
 
     TTF_CloseFont(context->font16);

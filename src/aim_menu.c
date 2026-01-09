@@ -193,8 +193,6 @@ void aim_menu_present(aim_context_t *context) {
 }
 
 SDL_AppResult aim_menu_process(aim_context_t *context, SDL_Event *event) {
-    AIM_UNUSED(context);
-
     if (event->type == SDL_EVENT_MOUSE_MOTION) {
         float x = event->motion.x;
         float y = event->motion.y;
@@ -229,10 +227,12 @@ SDL_AppResult aim_menu_process(aim_context_t *context, SDL_Event *event) {
     }
 
     if (is_play_button_pressed) {
+        is_play_button_pressed = false;
         context->screen = AIM_PLAY_SCREEN;
     }
 
     if (is_quit_button_pressed) {
+        is_quit_button_pressed = false;
         context->screen = AIM_QUIT_SCREEN;
     }
 
