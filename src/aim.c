@@ -2,6 +2,7 @@
 
 #include "aim_menu.h"
 #include "aim_play.h"
+#include "aim_quit.h"
 #include "aim_version.h"
 
 #include <SDL3/SDL.h>
@@ -94,6 +95,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
         return SDL_APP_FAILURE;
     }
 
+    if (!aim_quit_prepare(context)) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_quit_preapre: %s", SDL_GetError());
+
+        return SDL_APP_FAILURE;
+    }
+
     context->screen = AIM_MENU_SCREEN;
 
     *appstate = context;
@@ -116,15 +123,13 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
             return aim_play_process(context, event);
 
         case AIM_QUIT_SCREEN:
-            break;
+            return aim_quit_process(context, event);
 
         default:
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unknown application screen: %i", context->screen);
 
             return SDL_APP_FAILURE;
     }
-
-    return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
@@ -145,6 +150,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
             break;
 
         case AIM_QUIT_SCREEN:
+            aim_quit_present(context);
+
             break;
 
         default:
@@ -163,6 +170,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
 
     aim_context_t *context = appstate;
 
+    aim_quit_release(context);
     aim_play_release(context);
     aim_menu_release(context);
 
