@@ -3,6 +3,7 @@
 #include "aim_menu.h"
 #include "aim_play.h"
 #include "aim_quit.h"
+#include "aim_sound.h"
 #include "aim_version.h"
 
 #include <SDL3/SDL.h>
@@ -45,6 +46,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
         return SDL_APP_FAILURE;
     }
 
+    int width = 0, height = 0;
+
+    if (!SDL_GetWindowSize(context->window, &width, &height)) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_GetWindowSize: %s", SDL_GetError());
+
+        return SDL_APP_FAILURE;
+    }
+
+    context->window_width = (float) width;
+    context->window_height = (float) height;
+
     if (!TTF_Init()) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "TTF_Init: %s", SDL_GetError());
 
@@ -72,16 +84,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
         return SDL_APP_FAILURE;
     }
 
-    int width = 0, height = 0;
-
-    if (!SDL_GetWindowSize(context->window, &width, &height)) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_GetWindowSize: %s", SDL_GetError());
+    context->sound = aim_sound_create("res/sounds/hover.wav");
+    if (context->sound == NULL) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_sound_create: %s", SDL_GetError());
 
         return SDL_APP_FAILURE;
     }
-
-    context->window_width = (float) width;
-    context->window_height = (float) height;
 
     if (!aim_menu_prepare(context)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_menu_prepare: %s", SDL_GetError());
@@ -174,6 +182,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
     aim_play_release(context);
     aim_menu_release(context);
 
+    aim_sound_delete(context->sound);
     TTF_CloseFont(context->font16);
     TTF_CloseFont(context->font32);
     TTF_DestroyRendererTextEngine(context->engine);

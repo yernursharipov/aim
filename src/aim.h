@@ -1,6 +1,8 @@
 #ifndef AIM_H
 #define AIM_H
 
+#include "aim_sound.h"
+
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -16,11 +18,12 @@ typedef enum {
 typedef struct {
     SDL_Window *window;
     SDL_Renderer *renderer;
+    float window_width;
+    float window_height;
     TTF_TextEngine *engine;
     TTF_Font *font32;
     TTF_Font *font16;
-    float window_width;
-    float window_height;
+    aim_sound_t *sound;
     aim_screen_t screen;
 } aim_context_t;
 
