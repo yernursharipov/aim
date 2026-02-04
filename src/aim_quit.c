@@ -173,4 +173,5 @@ void aim_quit_release(aim_context_t *context) {
     quit_label = NULL;
     cancel_button = NULL;
     confirm_button = NULL;
+    version_label = NULL;
 }
