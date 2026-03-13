@@ -10,7 +10,6 @@
 
 #include <math.h>
 #include <stdint.h>
-#include <stdio.h>
 
 typedef struct {
     float x;
@@ -24,10 +23,10 @@ static aim_target_t target = {};
 static uint64_t previous_time = 0;
 
 static bool aim_target_hit(float target_x, float target_y, float target_radius, float hit_x, float hit_y) {
-    float x = target_x - hit_x;
-    float y = target_y - hit_y;
+    float dx = target_x - hit_x;
+    float dy = target_y - hit_y;
 
-    return x * x + y * y <= target_radius * target_radius;
+    return dx * dx + dy * dy <= target_radius * target_radius;
 }
 
 static void aim_draw_filled_circle(aim_context_t *context, float x, float y, float radius) {
@@ -68,9 +67,7 @@ void aim_play_present(aim_context_t *context) {
     }
 
     if (target.hit) {
-        char time_text_buffer[64] = {};
-        snprintf(time_text_buffer, 64, "%lu", target.time);
-        SDL_RenderDebugText(context->renderer, target.x - target.radius / 2.0f, target.y - target.radius, time_text_buffer);
+        SDL_RenderDebugTextFormat(context->renderer, target.x - target.radius / 2.0f, target.y - target.radius, "%lu", target.time);
     } else {
         aim_draw_filled_circle(context, target.x, target.y, target.radius);
     }

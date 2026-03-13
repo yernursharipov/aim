@@ -25,7 +25,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     AIM_UNUSED(argc);
     AIM_UNUSED(argv);
 
-    SDL_SetAppMetadata("aim", aim_version_string(), "aim");
+    SDL_SetAppMetadata("Aim", aim_version_string(), "aim");
 
     aim_context_t *context = SDL_malloc(sizeof(aim_context_t));
     if (context == NULL) {
@@ -40,7 +40,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
         return SDL_APP_FAILURE;
     }
 
-    if (!SDL_CreateWindowAndRenderer("aim", 1280, 720, 0, &context->window, &context->renderer)) {
+    if (!SDL_CreateWindowAndRenderer("Aim", 1280, 720, 0, &context->window, &context->renderer)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateWindowAndRenderer: %s", SDL_GetError());
 
         return SDL_APP_FAILURE;
