@@ -50,7 +50,7 @@ bool aim_play_prepare(aim_context_t *context) {
     return true;
 }
 
-void aim_play_present(aim_context_t *context) {
+SDL_AppResult aim_play_present(aim_context_t *context) {
     SDL_SetRenderDrawColorFloat(context->renderer, 1.0f, 1.0, 1.0f, 1.0f);
 
     uint64_t current_time = SDL_GetTicks();
@@ -71,6 +71,10 @@ void aim_play_present(aim_context_t *context) {
     } else {
         aim_draw_filled_circle(context, target.x, target.y, target.radius);
     }
+
+    SDL_RenderPresent(context->renderer);
+
+    return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult aim_play_process(aim_context_t *context, SDL_Event *event) {

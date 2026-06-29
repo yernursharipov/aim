@@ -61,7 +61,7 @@ failure:
     return false;
 }
 
-void aim_menu_present(aim_context_t *context) {
+SDL_AppResult aim_menu_present(aim_context_t *context) {
     if (play_button->is_hovered && !play_button->is_pressed) {
         SDL_SetRenderDrawColorFloat(context->renderer, 0.15f, 0.15f, 0.15f, 1.0f);
         SDL_RenderFillRect(context->renderer, &play_button->rect);
@@ -113,6 +113,10 @@ void aim_menu_present(aim_context_t *context) {
         10.0f,
         context->window_height - version_label->height - 5.0f
     );
+
+    SDL_RenderPresent(context->renderer);
+
+    return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult aim_menu_process(aim_context_t *context, SDL_Event *event) {

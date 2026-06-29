@@ -148,29 +148,19 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
     switch (context->screen) {
         case AIM_MENU_SCREEN:
-            aim_menu_present(context);
-
-            break;
+            return aim_menu_present(context);
 
         case AIM_PLAY_SCREEN:
-            aim_play_present(context);
-
-            break;
+            return aim_play_present(context);
 
         case AIM_QUIT_SCREEN:
-            aim_quit_present(context);
-
-            break;
+            return aim_quit_present(context);
 
         default:
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unknown application screen: %i", context->screen);
 
             return SDL_APP_FAILURE;
     }
-
-    SDL_RenderPresent(context->renderer);
-
-    return SDL_APP_CONTINUE;
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {

@@ -8,7 +8,7 @@
 
 bool aim_play_prepare(aim_context_t *context);
 
-void aim_play_present(aim_context_t *context);
+SDL_AppResult aim_play_present(aim_context_t *context);
 
 SDL_AppResult aim_play_process(aim_context_t *context, SDL_Event *event);
 

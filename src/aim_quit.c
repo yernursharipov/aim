@@ -69,7 +69,7 @@ failure:
     return false;
 }
 
-void aim_quit_present(aim_context_t *context) {
+SDL_AppResult aim_quit_present(aim_context_t *context) {
     TTF_DrawRendererText(
         quit_label->text,
         context->window_width * 0.5f - quit_label->width * 0.5f,
@@ -127,6 +127,10 @@ void aim_quit_present(aim_context_t *context) {
         10.0f,
         context->window_height - version_label->height - 5.0f
     );
+
+    SDL_RenderPresent(context->renderer);
+
+    return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult aim_quit_process(aim_context_t *context, SDL_Event *event) {

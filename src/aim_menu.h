@@ -8,7 +8,7 @@
 
 bool aim_menu_prepare(aim_context_t *context);
 
-void aim_menu_present(aim_context_t *context);
+SDL_AppResult aim_menu_present(aim_context_t *context);
 
 SDL_AppResult aim_menu_process(aim_context_t *context, SDL_Event *event);
 
