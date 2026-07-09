@@ -34,21 +34,21 @@ static void aim_menu_reset_button_sound_state(aim_menu_button_t button) {
 bool aim_menu_prepare(aim_context_t *context) {
     play_button = aim_button_create(context->engine, context->font32, "Play", context->window_width * 0.5f - 150.0f, context->window_height * 0.4f, 300.0f, 50.0f);
     if (play_button == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_menu_prepare: %s", "Play button is null");
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_button_create: %s", "Play button is null");
 
         goto failure;
     }
 
     quit_button = aim_button_create(context->engine, context->font32, "Quit", context->window_width * 0.5f - 150.0f, context->window_height * 0.4f + 55.0f, 300.0f, 50.0f);
     if (quit_button == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_menu_prepare: %s", "Quit button is null");
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_button_create: %s", "Quit button is null");
 
         goto failure;
     }
 
     version_label = aim_label_create(context->engine, context->font16, aim_version_string());
     if (version_label == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_menu_prepare: %s", "Version label is null");
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_label_create: %s", "Version label is null");
 
         goto failure;
     }

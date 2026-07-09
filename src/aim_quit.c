@@ -35,28 +35,28 @@ static void aim_quit_reset_button_sound_state(aim_quit_button_t button) {
 bool aim_quit_prepare(aim_context_t *context) {
     quit_label = aim_label_create(context->engine, context->font32, "Are you sure?");
     if (quit_label == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_quit_prepare: %s", "Quit label is null");
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_label_create: %s", "Quit label is null");
 
         goto failure;
     }
 
     cancel_button = aim_button_create(context->engine, context->font32, "Cancel", context->window_width * 0.5f - 300.0f - 2.5f, context->window_height * 0.4f + 55.0f, 300.0f, 50.0f);
     if (cancel_button == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_quit_prepare: %s", "Cancel button is null");
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_button_create: %s", "Cancel button is null");
 
         goto failure;
     }
 
     confirm_button = aim_button_create(context->engine, context->font32, "Confirm", context->window_width * 0.5f + 2.5f, context->window_height * 0.4f + 55.0f, 300.0f, 50.0f);
     if (confirm_button == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_quit_prepare: %s", "Confirm button is null");
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_button_create: %s", "Confirm button is null");
 
         goto failure;
     }
 
     version_label = aim_label_create(context->engine, context->font16, aim_version_string());
     if (version_label == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_quit_prepare: %s", "Version label is null");
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_label_create: %s", "Version label is null");
 
         goto failure;
     }

@@ -15,7 +15,7 @@ aim_button_t *aim_button_create(TTF_TextEngine *engine, TTF_Font *font, const ch
 
     button->label = aim_label_create(engine, font, text);
     if (button->label == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_button_create: %s", "Label is null");
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_label_create: %s", "Label is null");
 
         goto failure;
     }
