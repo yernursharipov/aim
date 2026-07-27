@@ -2,6 +2,7 @@
 #define AIM_SOUND_H
 
 #include <SDL3/SDL_audio.h>
+
 #include <stdint.h>
 
 typedef struct {

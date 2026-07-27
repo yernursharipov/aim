@@ -9,7 +9,8 @@ PROJECT_OBJECTS := $(PROJECT_SOURCES:.c=.o)
 
 CC := gcc
 
-CFLAGS := -fno-omit-frame-pointer      \
+CFLAGS := -fno-common                  \
+          -fno-omit-frame-pointer      \
           -fsanitize=address,undefined \
           -fwrapv                      \
           -ggdb                        \

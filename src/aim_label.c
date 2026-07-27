@@ -1,28 +1,15 @@
 #include "aim_label.h"
 
+#include <SDL3/SDL_assert.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_stdinc.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
 aim_label_t *aim_label_create(TTF_TextEngine *engine, TTF_Font *font, const char *text) {
-    if (engine == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_label_create: %s", "Engine is null");
-
-        return NULL;
-    }
-
-    if (font == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_label_create: %s", "Font is null");
-
-        return NULL;
-    }
-
-    if (text == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_label_create: %s", "Text is null");
-
-        return NULL;
-    }
+    SDL_assert(engine != NULL);
+    SDL_assert(font != NULL);
+    SDL_assert(text != NULL);
 
     aim_label_t *label = SDL_calloc(1, sizeof(aim_label_t));
     if (label == NULL) {

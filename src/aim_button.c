@@ -2,10 +2,15 @@
 
 #include "aim_label.h"
 
+#include <SDL3/SDL_assert.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_stdinc.h>
 
 aim_button_t *aim_button_create(TTF_TextEngine *engine, TTF_Font *font, const char *text, float x, float y, float w, float h) {
+    SDL_assert(engine != NULL);
+    SDL_assert(font != NULL);
+    SDL_assert(text != NULL);
+
     aim_button_t *button = SDL_calloc(1, sizeof(aim_button_t));
     if (button == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_calloc: %s", SDL_GetError());
@@ -47,5 +52,7 @@ void aim_button_delete(aim_button_t *button) {
 }
 
 bool aim_button_is_xy_inside(aim_button_t *button, float x, float y) {
+    SDL_assert(button != NULL);
+
     return x > button->rect.x && x < button->rect.x + button->rect.w && y > button->rect.y && y < button->rect.y + button->rect.h;
 }

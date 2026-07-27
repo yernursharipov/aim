@@ -6,7 +6,7 @@
 #include "aim_sound.h"
 #include "aim_version.h"
 
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_assert.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_hints.h>
@@ -21,7 +21,7 @@
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL_main.h>
 
-SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
+SDL_AppResult SDL_AppInit(void **state, int argc, char **argv) {
     AIM_UNUSED(argc);
     AIM_UNUSED(argv);
 
@@ -47,7 +47,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     }
 
     int width = 0, height = 0;
-
     if (!SDL_GetWindowSize(context->window, &width, &height)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_GetWindowSize: %s", SDL_GetError());
 
@@ -111,13 +110,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
 
     context->screen = AIM_MENU_SCREEN;
 
-    *appstate = context;
+    *state = context;
 
     return SDL_APP_CONTINUE;
 }
 
-SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
-    aim_context_t *context = appstate;
+SDL_AppResult SDL_AppEvent(void *state, SDL_Event *event) {
+    SDL_assert(state != NULL);
+    SDL_assert(event != NULL);
+
+    aim_context_t *context = state;
 
     if (event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS;
@@ -140,8 +142,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
     }
 }
 
-SDL_AppResult SDL_AppIterate(void *appstate) {
-    aim_context_t *context = appstate;
+SDL_AppResult SDL_AppIterate(void *state) {
+    SDL_assert(state != NULL);
+
+    aim_context_t *context = state;
 
     SDL_SetRenderDrawColorFloat(context->renderer, 0.1f, 0.1f, 0.1f, 1.0f);
     SDL_RenderClear(context->renderer);
@@ -163,10 +167,11 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     }
 }
 
-void SDL_AppQuit(void *appstate, SDL_AppResult result) {
+void SDL_AppQuit(void *state, SDL_AppResult result) {
+    SDL_assert(state != NULL);
     AIM_UNUSED(result);
 
-    aim_context_t *context = appstate;
+    aim_context_t *context = state;
 
     aim_quit_release(context);
     aim_play_release(context);

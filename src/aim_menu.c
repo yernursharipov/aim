@@ -1,11 +1,11 @@
 #include "aim_menu.h"
 
-#include "aim.h"
 #include "aim_button.h"
 #include "aim_label.h"
 #include "aim_sound.h"
 #include "aim_version.h"
 
+#include <SDL3/SDL_assert.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_log.h>
@@ -32,6 +32,8 @@ static void aim_menu_reset_button_sound_state(aim_menu_button_t button) {
 }
 
 bool aim_menu_prepare(aim_context_t *context) {
+    SDL_assert(context != NULL);
+
     play_button = aim_button_create(context->engine, context->font32, "Play", context->window_width * 0.5f - 150.0f, context->window_height * 0.4f, 300.0f, 50.0f);
     if (play_button == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_button_create: %s", "Play button is null");
@@ -62,6 +64,8 @@ failure:
 }
 
 SDL_AppResult aim_menu_present(aim_context_t *context) {
+    SDL_assert(context != NULL);
+
     if (play_button->is_hovered && !play_button->is_pressed) {
         SDL_SetRenderDrawColorFloat(context->renderer, 0.15f, 0.15f, 0.15f, 1.0f);
         SDL_RenderFillRect(context->renderer, &play_button->rect);
@@ -120,6 +124,9 @@ SDL_AppResult aim_menu_present(aim_context_t *context) {
 }
 
 SDL_AppResult aim_menu_process(aim_context_t *context, SDL_Event *event) {
+    SDL_assert(context != NULL);
+    SDL_assert(event != NULL);
+
     if (event->type == SDL_EVENT_MOUSE_MOTION) {
         float x = event->motion.x;
         float y = event->motion.y;
@@ -155,7 +162,7 @@ SDL_AppResult aim_menu_process(aim_context_t *context, SDL_Event *event) {
 }
 
 void aim_menu_release(aim_context_t *context) {
-    AIM_UNUSED(context);
+    SDL_assert(context != NULL);
 
     aim_button_delete(play_button);
     aim_button_delete(quit_button);

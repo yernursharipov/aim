@@ -1,11 +1,11 @@
 #include "aim_quit.h"
 
-#include "aim.h"
 #include "aim_button.h"
 #include "aim_label.h"
 #include "aim_sound.h"
 #include "aim_version.h"
 
+#include <SDL3/SDL_assert.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_log.h>
@@ -33,6 +33,8 @@ static void aim_quit_reset_button_sound_state(aim_quit_button_t button) {
 }
 
 bool aim_quit_prepare(aim_context_t *context) {
+    SDL_assert(context != NULL);
+
     quit_label = aim_label_create(context->engine, context->font32, "Are you sure?");
     if (quit_label == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "aim_label_create: %s", "Quit label is null");
@@ -70,6 +72,8 @@ failure:
 }
 
 SDL_AppResult aim_quit_present(aim_context_t *context) {
+    SDL_assert(context != NULL);
+
     TTF_DrawRendererText(
         quit_label->text,
         context->window_width * 0.5f - quit_label->width * 0.5f,
@@ -134,6 +138,9 @@ SDL_AppResult aim_quit_present(aim_context_t *context) {
 }
 
 SDL_AppResult aim_quit_process(aim_context_t *context, SDL_Event *event) {
+    SDL_assert(context != NULL);
+    SDL_assert(event != NULL);
+
     if (event->type == SDL_EVENT_MOUSE_MOTION) {
         float x = event->motion.x;
         float y = event->motion.y;
@@ -167,7 +174,7 @@ SDL_AppResult aim_quit_process(aim_context_t *context, SDL_Event *event) {
 }
 
 void aim_quit_release(aim_context_t *context) {
-    AIM_UNUSED(context);
+    SDL_assert(context != NULL);
 
     aim_label_delete(quit_label);
     aim_button_delete(cancel_button);
